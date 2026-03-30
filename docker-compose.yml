@@ -1,0 +1,33 @@
+version: "2.4"
+
+services:
+  comfyui:
+    container_name: ${CONTAINER_NAME:-comfyui-trellis2}
+    image: ${IMAGE_NAME:-comfyui-trellis2:latest}
+    build:
+      context: .
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-k1llahkeezy/pytorch-blackwell:0.2.0}
+        COMFYUI_REF: ${COMFYUI_REF:-master}
+        MANAGER_REF: ${MANAGER_REF:-main}
+        TRELLIS_REF: ${TRELLIS_REF:-main}
+        RGTHREE_REF: ${RGTHREE_REF:-main}
+        VHS_REF: ${VHS_REF:-main}
+    restart: unless-stopped
+    init: true
+    runtime: nvidia
+    shm_size: "8gb"
+    environment:
+      COMFYUI_PORT: ${COMFYUI_PORT:-8188}
+      NVIDIA_VISIBLE_DEVICES: ${NVIDIA_VISIBLE_DEVICES:-all}
+      NVIDIA_DRIVER_CAPABILITIES: ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility,video}
+      PYTORCH_CUDA_ALLOC_CONF: ${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}
+      HF_HOME: /root/.cache/huggingface
+    ports:
+      - "${COMFYUI_PORT:-8188}:8188"
+    volumes:
+      - ${COMFYUI_DATA_DIR:-./data}/models:/opt/comfyui/models
+      - ${COMFYUI_DATA_DIR:-./data}/input:/opt/comfyui/input
+      - ${COMFYUI_DATA_DIR:-./data}/output:/opt/comfyui/output
+      - ${COMFYUI_DATA_DIR:-./data}/user:/opt/comfyui/user
+      - ${COMFYUI_DATA_DIR:-./data}/huggingface:/root/.cache/huggingface
